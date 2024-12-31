@@ -6,7 +6,7 @@ import ViewArticle from "./components/ViewArticle";
 export default function App() {
     return (
         <Router>
-            <div className="min-h-screen bg-[#181818]">
+            <div className="min-h-screen bg-[#f8f6f4]">
                 <Routes>
                     <Route path="/" element={<ArticleSection />} />
                     <Route path="/create" element={<CreateArticle />} />

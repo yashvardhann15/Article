@@ -63,7 +63,7 @@ export default function ArticleSection() {
                 <motion.h1
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    className="text-6xl font-work-sans font-bold text-white tracking-tight"
+                    className="text-6xl font-work-sans font-bold text-slate-950 tracking-tight"
                 >
                     Article Section
                 </motion.h1>
@@ -77,7 +77,7 @@ export default function ArticleSection() {
                         className="bg-white/10 p-4 rounded-full transition-all duration-300 hover:bg-white/20"
                     >
                         <RefreshCcw
-                            className={`text-white h-6 w-6 ${
+                            className={`text-stone-800 h-6 w-6 ${
                                 refreshing ? "animate-spin" : ""
                             }`}
                         />
@@ -163,8 +163,8 @@ export default function ArticleSection() {
                                     {article.content}
                                 </p>
                                 <motion.div
-                                    initial={{ opacity: 0 }}
-                                    whileHover={{ opacity: 1 }}
+                                    // initial={{ opacity: 0 }}
+                                    // whileHover={{ opacity: 1 }}
                                     className="mt-4 text-[#B23737] font-medium"
                                 >
                                     Read more →
