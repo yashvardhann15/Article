@@ -1,72 +1,197 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Pencil } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Pencil,
+    Loader2,
+    RefreshCcw,
+    ChevronRight,
+    Calendar,
+} from "lucide-react";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Button } from "./ui/button";
 
 export default function ArticleSection() {
-  const [articles, setArticles] = useState([])
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
+    const [articles, setArticles] = useState([]);
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const navigate = useNavigate();
 
-  useEffect(() => {
     const fetchArticles = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/articles')
-        if (!response.ok) throw new Error('Failed to fetch')
-        const data = await response.json()
-        setArticles(data)
-      } catch (err) {
-        setError('Failed to load articles')
-      }
-    }
-    fetchArticles()
-  }, [])
+        setRefreshing(true);
+        try {
+            const response = await fetch("http://localhost:8080/articles");
+            if (!response.ok) throw new Error("Failed to fetch");
+            const data = await response.json();
+            setArticles(data);
+            setError("");
+        } catch (err) {
+            setError("Failed to load articles");
+        } finally {
+            setIsLoading(false);
+            setRefreshing(false);
+        }
+    };
 
-  return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-[64px] font-work-sans font-bold text-white tracking-[-2%]">
-          Article Section
-        </h1>
-        <button 
-          onClick={() => navigate('/create')}
-          className="bg-[#B23737] hover:bg-[#7F1F22] p-4 rounded-full transition-colors"
+    useEffect(() => {
+        fetchArticles();
+    }, []);
+
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+            },
+        },
+    };
+
+    const item = {
+        hidden: { y: 20, opacity: 0 },
+        show: { y: 0, opacity: 1 },
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="container mx-auto px-6 py-8"
         >
-          <Pencil className="text-white h-6 w-6" />
-        </button>
-      </div>
+            <div className="flex justify-between items-center mb-8">
+                <motion.h1
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="text-6xl font-work-sans font-bold text-white tracking-tight"
+                >
+                    Article Section
+                </motion.h1>
 
-      {error && (
-        <div className="text-[#B23737] text-[16px] font-work-sans">
-          {error}
-        </div>
-      )}
+                <div className="flex gap-4">
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={fetchArticles}
+                        disabled={refreshing}
+                        className="bg-white/10 p-4 rounded-full transition-all duration-300 hover:bg-white/20"
+                    >
+                        <RefreshCcw
+                            className={`text-white h-6 w-6 ${
+                                refreshing ? "animate-spin" : ""
+                            }`}
+                        />
+                    </motion.button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {articles.map(article => (
-          <div 
-            key={article.id}
-            onClick={() => navigate(`/article/${article.id}`)}
-            className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer"
-          >
-            <div className="bg-[#B23737] p-4">
-              <div className="font-work-sans text-[24px] font-bold text-white">
-                {article.authorName}
-              </div>
-              <div className="font-work-sans text-[14px] text-white opacity-75">
-                Created: {new Date(article.createdAt).toLocaleDateString()}
-              </div>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate("/create")}
+                        className="bg-[#B23737] hover:bg-[#7F1F22] p-4 rounded-full transition-all duration-300 shadow-lg"
+                    >
+                        <Pencil className="text-white h-6 w-6" />
+                    </motion.button>
+                </div>
             </div>
-            <div className="p-6">
-              <h2 className="font-work-sans text-[40px] font-bold text-[#181818] tracking-[-2%] mb-2">
-                {article.title}
-              </h2>
-              <p className="font-work-sans text-[16px] text-[#616161] leading-[140%]">
-                {article.content}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="mb-6"
+                    >
+                        <Alert variant="destructive">
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {isLoading ? (
+                <div className="flex items-center justify-center h-64">
+                    <Loader2 className="w-8 h-8 text-white animate-spin" />
+                </div>
+            ) : (
+                <motion.div
+                    variants={container}
+                    initial="hidden"
+                    animate="show"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+                    {articles.map((article) => (
+                        <motion.div
+                            key={article.id}
+                            variants={item}
+                            layoutId={`article-${article.id}`}
+                            onClick={() => navigate(`/article/${article.id}`)}
+                            className="group bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                        >
+                            <div className="bg-[#B23737] p-6 transition-colors duration-300 group-hover:bg-[#7F1F22]">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-work-sans text-2xl font-bold text-white">
+                                            {article.authorName}
+                                        </div>
+                                        <div className="flex items-center gap-2 font-work-sans text-sm text-white/75">
+                                            <Calendar className="w-4 h-4" />
+                                            {new Date(
+                                                article.createdAt,
+                                            ).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            })}
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="text-white/0 group-hover:text-white/100 transition-all duration-300"
+                                    >
+                                        <ChevronRight className="w-6 h-6" />
+                                    </motion.div>
+                                </div>
+                            </div>
+
+                            <div className="p-6">
+                                <h2 className="font-work-sans text-4xl font-bold text-gray-900 tracking-tight mb-4 line-clamp-2">
+                                    {article.title}
+                                </h2>
+                                <p className="font-work-sans text-lg text-gray-600 leading-relaxed line-clamp-3">
+                                    {article.content}
+                                </p>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    whileHover={{ opacity: 1 }}
+                                    className="mt-4 text-[#B23737] font-medium"
+                                >
+                                    Read more →
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            )}
+
+            {!isLoading && articles.length === 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center py-16"
+                >
+                    <h3 className="text-2xl text-white/80 mb-4">
+                        No articles yet
+                    </h3>
+                    <Button
+                        onClick={() => navigate("/create")}
+                        className="bg-[#B23737] hover:bg-[#7F1F22]"
+                    >
+                        Create Your First Article
+                    </Button>
+                </motion.div>
+            )}
+        </motion.div>
+    );
 }
