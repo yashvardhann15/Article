@@ -3,6 +3,7 @@ package com.project.article.Controllers;
 import com.project.article.Dto.CreateArticleRequestDto;
 import com.project.article.Models.Article;
 import com.project.article.Projections.ArticleProjection;
+import com.project.article.Repository.ArticleRepository;
 import com.project.article.Services.ArticleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,11 @@ import java.util.List;
 @RestController
 public class ArticleController {
 
+    private final ArticleRepository articleRepository;
     public ArticleService articleService;
-    public ArticleController(ArticleService articleService){
+    public ArticleController(ArticleService articleService, ArticleRepository articleRepository){
         this.articleService = articleService;
+        this.articleRepository = articleRepository;
     }
 
     @GetMapping("/articles")
@@ -39,4 +42,9 @@ public class ArticleController {
         return responseEntity;
     }
 
+    @DeleteMapping("/articles/{id}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable("id") long id){
+        ResponseEntity<Void> responseEntity = articleService.deleteArticle(id);
+        return responseEntity;
+    }
 }

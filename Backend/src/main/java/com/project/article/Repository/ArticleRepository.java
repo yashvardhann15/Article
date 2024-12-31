@@ -11,4 +11,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Article  save(Article article);
 
     List<ArticleProjection> findAllProjectedBy();
+    boolean existsById(long id);
+    void deleteById(long id);
 }

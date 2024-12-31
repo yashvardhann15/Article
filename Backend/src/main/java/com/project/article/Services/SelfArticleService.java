@@ -6,6 +6,8 @@ import com.project.article.Models.Article;
 import com.project.article.Models.Author;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,5 +51,14 @@ public class SelfArticleService implements ArticleService{
             throw new ArticleCreationException();
         }
         return createdArticle;
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteArticle(long id) {
+        if(articleRepository.existsById(id)){
+            articleRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else throw new ArticleNotFoundException();
     }
 }
