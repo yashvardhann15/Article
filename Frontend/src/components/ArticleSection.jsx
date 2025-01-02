@@ -181,7 +181,7 @@ export default function ArticleSection() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center py-16"
                 >
-                    <h3 className="text-2xl text-white/80 mb-4">
+                    <h3 className="text-2xl text-slate-950/80 mb-4">
                         No articles yet
                     </h3>
                     <Button
