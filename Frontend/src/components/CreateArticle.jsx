@@ -9,7 +9,9 @@ import { Button } from "./ui/button";
 
 export default function CreateArticle() {
     const [formData, setFormData] = useState({
-        authorName: "",
+        author: {
+            name: ""
+        },
         title: "",
         content: "",
     });
@@ -117,11 +119,11 @@ export default function CreateArticle() {
                         <Input
                             type="text"
                             className="w-full p-3 border-2 border-gray-200 rounded-lg font-work-sans text-lg transition-all duration-200 focus:ring-2 focus:ring-[#B23737] focus:border-transparent"
-                            value={formData.authorName}
+                            value={formData.author.name}
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
-                                    authorName: e.target.value,
+                                    author: { name: e.target.value },
                                 })
                             }
                             required
