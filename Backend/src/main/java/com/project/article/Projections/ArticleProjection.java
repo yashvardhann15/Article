@@ -1,7 +1,7 @@
 package com.project.article.Projections;
 import java.time.LocalDateTime;
 public interface ArticleProjection {
-    long getId();
+    Long getId();
     String getAuthorName();
     String getTitle();
     String getContent();

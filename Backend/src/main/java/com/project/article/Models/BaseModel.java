@@ -30,4 +30,8 @@ public class BaseModel {
     protected void onUpdate() {
         setUpdatedAt(LocalDateTime.now());
     }
+
+    public void setIsDeleted(){
+        this.isDeleted = true;
+    }
 }

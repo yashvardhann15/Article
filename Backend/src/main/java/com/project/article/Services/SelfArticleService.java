@@ -55,8 +55,10 @@ public class SelfArticleService implements ArticleService{
 
     @Override
     public ResponseEntity<Void> deleteArticle(long id) {
-        if(articleRepository.existsById(id)){
-            articleRepository.deleteById(id);
+        if(articleRepository.existsByIdAndIsDeletedFalse(id)){
+            Article article = articleRepository.findById(id);
+            article.setIsDeleted();
+            articleRepository.save(article);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         else throw new ArticleNotFoundException();
