@@ -7,6 +7,10 @@ import com.project.article.Models.Author;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
 import com.project.article.Repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -74,5 +78,10 @@ public class SelfArticleService implements ArticleService{
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         else throw new ArticleNotFoundException();
+    }
+
+    @Override
+    public Page<ArticleProjection> getAllArticles(int pageNo , int pageSize) {
+        return articleRepository.findAllProjection(PageRequest.of(pageNo, pageSize , Sort.by("createdAt").descending()));
     }
 }

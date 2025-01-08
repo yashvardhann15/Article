@@ -5,6 +5,7 @@ import com.project.article.Models.Article;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
 import com.project.article.Services.ArticleService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +47,11 @@ public class ArticleController {
     public ResponseEntity<Void> deleteArticle(@PathVariable("id") long id){
         ResponseEntity<Void> responseEntity = articleService.deleteArticle(id);
         return responseEntity;
+    }
+
+    @GetMapping("/articles/page")
+    public List<ArticleProjection> getArticlePages(@RequestParam("pageNo") int pageNo , @RequestParam("pageSize") int pageSize){
+        Page<ArticleProjection> articles = articleService.getAllArticles(pageNo , pageSize);
+        return articles.getContent();
     }
 }
