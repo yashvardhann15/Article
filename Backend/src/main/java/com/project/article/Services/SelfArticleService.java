@@ -6,6 +6,7 @@ import com.project.article.Models.Article;
 import com.project.article.Models.Author;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
+import com.project.article.Repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,11 @@ import java.util.List;
 public class SelfArticleService implements ArticleService{
 
     private ArticleRepository articleRepository;
+    private UserRepository userRepository;
 
-    public SelfArticleService(ArticleRepository articleRepository){
+    public SelfArticleService(ArticleRepository articleRepository , UserRepository userRepository){
         this.articleRepository = articleRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -40,16 +43,25 @@ public class SelfArticleService implements ArticleService{
     }
 
     @Override
-    public ArticleProjection createArticle(Author author, String title, String content) {
+    public ArticleProjection createArticle(Author userName, String title, String content) {
+        Author author = userRepository.findByName(userName.getName());
+        if (author == null) {
+            author = new Author();
+            author.setName(userName.getName());
+            author = userRepository.save(author);
+        }
+
         Article article = new Article();
         article.setTitle(title);
         article.setContent(content);
         article.setAuthor(author);
         articleRepository.save(article);
+
         ArticleProjection createdArticle = articleRepository.findProjectedById(article.getId());
-        if (createdArticle == null){
+        if (createdArticle == null) {
             throw new ArticleCreationException();
         }
+
         return createdArticle;
     }
 
