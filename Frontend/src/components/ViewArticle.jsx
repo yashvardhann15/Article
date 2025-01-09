@@ -16,6 +16,7 @@ export default function ViewArticle() {
     const [formData, setFormData] = useState({ title: "", content: "" });
     const { id } = useParams();
     const navigate = useNavigate();
+    const [showError, setShowError] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8080/articles/${id}`)
@@ -43,7 +44,38 @@ export default function ViewArticle() {
         setIsEditing(true);
     };
 
+    // const handleSaveChanges = async () => {
+    //     if(!formData.title && !formData.content) {
+    //         try {
+    //             const res = await fetch(`http://localhost:8080/articles/${id}`, {
+    //                 method: "PATCH",
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //                 body: JSON.stringify(formData),
+    //             });
+    //             if (!res.ok) throw new Error("Failed to save changes");
+    //             setArticle({ ...article, ...formData });
+    //             setIsEditing(false);
+    //         } catch (err) {
+    //             setError(err.message);
+    //         }
+    //     }
+    //     else{
+    //         setError("Title and Content cannot be empty");
+    //     }
+    // };
+
     const handleSaveChanges = async () => {
+        if (!formData.title.trim() || !formData.content.trim()) {
+            setError("Title and content cannot be empty");
+            setShowError(true);
+            setTimeout(() => {
+                setShowError(false);
+            }, 3000); // Hide error message after 3 seconds
+            return;
+        }
+
         try {
             const res = await fetch(`http://localhost:8080/articles/${id}`, {
                 method: "PATCH",
@@ -55,6 +87,7 @@ export default function ViewArticle() {
             if (!res.ok) throw new Error("Failed to save changes");
             setArticle({ ...article, ...formData });
             setIsEditing(false);
+            setError(""); // Clear error message on successful save
         } catch (err) {
             setError(err.message);
         }
@@ -89,6 +122,19 @@ export default function ViewArticle() {
             transition={{ duration: 0.5 }}
             className="max-w-4xl mx-auto p-6"
         >
+            {showError && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50"
+                >
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                </motion.div>
+            )}
+
             <motion.div
                 initial={{y: 20}}
                 animate={{y: 0}}

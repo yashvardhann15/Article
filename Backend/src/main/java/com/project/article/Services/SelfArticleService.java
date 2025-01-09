@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service("selfArticleService")
@@ -96,6 +97,7 @@ public class SelfArticleService implements ArticleService{
             Article article = articleRepository.findById(id);
             article.setTitle(title);
             article.setContent(content);
+            article.setUpdatedAt(LocalDateTime.now());
             articleRepository.save(article);
             return new ResponseEntity<>(HttpStatus.OK);
         }

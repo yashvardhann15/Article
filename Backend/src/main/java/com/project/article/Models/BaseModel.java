@@ -15,7 +15,7 @@ public class BaseModel {
     private long id;
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = true, updatable = true)
     private LocalDateTime updatedAt;
     private boolean isDeleted;
 
@@ -23,8 +23,8 @@ public class BaseModel {
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
         setCreatedAt(now);
-        setUpdatedAt(now);
     }
+
 
     @PreUpdate
     protected void onUpdate() {
