@@ -89,4 +89,16 @@ public class SelfArticleService implements ArticleService{
         Integer totalPages = pageOfArticles.getTotalPages();
         return new Pair<>(pageOfArticles.getContent() , new Pair<>(hasNext , totalPages));
     }
+
+    @Override
+    public ResponseEntity<Void> updateArticle(long id , Author author , String title , String content){
+        if(articleRepository.existsByIdAndIsDeletedFalse(id)){
+            Article article = articleRepository.findById(id);
+            article.setTitle(title);
+            article.setContent(content);
+            articleRepository.save(article);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else throw new ArticleNotFoundException();
+    }
 }

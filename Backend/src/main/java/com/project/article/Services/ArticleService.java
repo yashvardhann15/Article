@@ -15,4 +15,5 @@ public interface ArticleService {
     ArticleProjection createArticle(Author author, String title, String content);
     ResponseEntity<Void> deleteArticle(long id);
     Pair<List<ArticleProjection> , Pair<Boolean , Integer>> getAllArticles(int pageNo , int pageSize);
+    ResponseEntity<Void> updateArticle(long id , Author author , String title , String content);
 }

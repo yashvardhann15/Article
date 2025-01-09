@@ -54,4 +54,10 @@ public class ArticleController {
     public Pair<List<ArticleProjection> , Pair<Boolean , Integer>> getArticlePages(@RequestParam("pageNo") int pageNo , @RequestParam("pageSize") int pageSize){
         return articleService.getAllArticles(pageNo , pageSize);
     }
+
+    @PatchMapping("/articles/{id}")
+    public ResponseEntity<Void> updateArticle(@PathVariable("id") long id , @RequestBody CreateArticleRequestDto createArticleRequestDto){
+        ResponseEntity<Void> responseEntity = articleService.updateArticle(id , createArticleRequestDto.getAuthor() , createArticleRequestDto.getTitle() , createArticleRequestDto.getContent());
+        return responseEntity;
+    }
 }
