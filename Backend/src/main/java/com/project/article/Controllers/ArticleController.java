@@ -5,6 +5,7 @@ import com.project.article.Models.Article;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
 import com.project.article.Services.ArticleService;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +51,7 @@ public class ArticleController {
     }
 
     @GetMapping("/articles/page")
-    public List<ArticleProjection> getArticlePages(@RequestParam("pageNo") int pageNo , @RequestParam("pageSize") int pageSize){
-        Page<ArticleProjection> articles = articleService.getAllArticles(pageNo , pageSize);
-        return articles.getContent();
+    public Pair<List<ArticleProjection> , Pair<Boolean , Integer>> getArticlePages(@RequestParam("pageNo") int pageNo , @RequestParam("pageSize") int pageSize){
+        return articleService.getAllArticles(pageNo , pageSize);
     }
 }

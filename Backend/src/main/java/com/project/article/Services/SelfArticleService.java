@@ -7,6 +7,7 @@ import com.project.article.Models.Author;
 import com.project.article.Projections.ArticleProjection;
 import com.project.article.Repository.ArticleRepository;
 import com.project.article.Repository.UserRepository;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -81,7 +82,11 @@ public class SelfArticleService implements ArticleService{
     }
 
     @Override
-    public Page<ArticleProjection> getAllArticles(int pageNo , int pageSize) {
-        return articleRepository.findAllProjection(PageRequest.of(pageNo, pageSize , Sort.by("createdAt").descending()));
+    public Pair<List<ArticleProjection> , Pair<Boolean , Integer>> getAllArticles(int pageNo , int pageSize) {
+
+        Page<ArticleProjection> pageOfArticles = articleRepository.findAllProjection(PageRequest.of(pageNo, pageSize , Sort.by("createdAt").descending()));
+        Boolean hasNext = pageOfArticles.hasNext();
+        Integer totalPages = pageOfArticles.getTotalPages();
+        return new Pair<>(pageOfArticles.getContent() , new Pair<>(hasNext , totalPages));
     }
 }

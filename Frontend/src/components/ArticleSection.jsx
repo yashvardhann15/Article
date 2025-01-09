@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Pencil,
@@ -17,19 +17,24 @@ export default function ArticleSection() {
     const [isLoading, setIsLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const navigate = useNavigate();
-    const [pageNo , setPageNo] = useState(0);
-    const [pageSize , setPageSize] = useState(4);
+    const location = useLocation();
+    const [pageNo, setPageNo] = useState(() => {
+        const params = new URLSearchParams(location.search);
+        return parseInt(params.get("pageNo"), 10) || 1;
+    });
+    const [pageSize, setPageSize] = useState(8);
     const [isLastPage, setIsLastPage] = useState(false);
-
+    let totalPages = 0;
 
     const fetchArticles = async () => {
         setRefreshing(true);
         try {
-            const response = await fetch(`http://localhost:8080/articles/page?pageNo=${pageNo}&pageSize=${pageSize}`);
+            const response = await fetch(`http://localhost:8080/articles/page?pageNo=${pageNo - 1}&pageSize=${pageSize}`);
             if (!response.ok) throw new Error("Failed to fetch");
             const data = await response.json();
-            setArticles(data);
-            setIsLastPage(data.length < pageSize);
+            setArticles(data.a);
+            setIsLastPage(data.b.a === false);
+            totalPages = data.b.b;
             setError("");
         } catch (err) {
             setError("Failed to load articles");
@@ -42,6 +47,24 @@ export default function ArticleSection() {
     useEffect(() => {
         fetchArticles();
     }, [pageNo, pageSize]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const currentPage = parseInt(params.get("pageNo"), 10) || 1;
+        if (currentPage !== pageNo) {
+            setPageNo(currentPage);
+        }
+    }, [location.search]);
+
+    useEffect(() => {
+        navigate(`?pageNo=${pageNo}`, { replace: true });
+    }, [pageNo, navigate]);
+
+    useEffect(() => {
+        if (!isLoading && articles.length === 0 && (pageNo > totalPages || pageNo < 1)) {
+            setPageNo(1);
+        }
+    }, [isLoading, articles, pageNo, totalPages, setPageNo]);
 
     const container = {
         hidden: { opacity: 0 },
@@ -68,24 +91,16 @@ export default function ArticleSection() {
         setPageNo((prevPageNo) => Math.max(prevPageNo - 1, 0));
     };
 
-
-    const handlePageInputChange = (e) => {
-        const newPageNo = parseInt(e.target.value, 10);
-        if (!isNaN(newPageNo) && newPageNo >= 0) {
-            setPageNo(newPageNo);
-        }
-    };
-
     return (
         <motion.div
-            initial={{opacity: 0}}
-            animate={{opacity: 1}}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="container mx-auto px-6 py-8"
         >
             <div className="flex justify-between items-center mb-8">
                 <motion.h1
-                    initial={{x: -20, opacity: 0}}
-                    animate={{x: 0, opacity: 1}}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
                     className="text-6xl font-work-sans font-bold text-slate-950 tracking-tight"
                 >
                     Article Section
@@ -93,8 +108,8 @@ export default function ArticleSection() {
 
                 <div className="flex gap-4">
                     <motion.button
-                        whileHover={{scale: 1.05}}
-                        whileTap={{scale: 0.95}}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={fetchArticles}
                         disabled={refreshing}
                         className="bg-white/10 p-4 rounded-full transition-all duration-300 hover:bg-white/20"
@@ -107,12 +122,12 @@ export default function ArticleSection() {
                     </motion.button>
 
                     <motion.button
-                        whileHover={{scale: 1.05}}
-                        whileTap={{scale: 0.95}}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => navigate("/create")}
                         className="bg-[#B23737] hover:bg-[#7F1F22] p-4 rounded-full transition-all duration-300 shadow-lg"
                     >
-                        <Pencil className="text-black h-6 w-6"/>
+                        <Pencil className="text-black h-6 w-6" />
                     </motion.button>
                 </div>
             </div>
@@ -120,9 +135,9 @@ export default function ArticleSection() {
             <AnimatePresence>
                 {error && (
                     <motion.div
-                        initial={{opacity: 0, y: -20}}
-                        animate={{opacity: 1, y: 0}}
-                        exit={{opacity: 0, y: -20}}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
                         className="mb-6"
                     >
                         <Alert variant="destructive">
@@ -134,14 +149,14 @@ export default function ArticleSection() {
 
             {isLoading ? (
                 <div className="flex items-center justify-center h-64">
-                    <Loader2 className="w-8 h-8 text-black animate-spin"/>
+                    <Loader2 className="w-8 h-8 text-black animate-spin" />
                 </div>
             ) : (
                 <motion.div
                     variants={container}
                     initial="hidden"
                     animate="show"
-                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-4 gap-6"
                 >
                     {articles.map((article) => (
                         <motion.div
@@ -158,7 +173,7 @@ export default function ArticleSection() {
                                             {article.authorName}
                                         </div>
                                         <div className="flex items-center gap-2 font-work-sans text-sm text-white/75">
-                                            <Calendar className="w-4 h-4"/>
+                                            <Calendar className="w-4 h-4" />
                                             {new Date(
                                                 article.createdAt,
                                             ).toLocaleDateString("en-US", {
@@ -169,11 +184,11 @@ export default function ArticleSection() {
                                         </div>
                                     </div>
                                     <motion.div
-                                        initial={{opacity: 0, x: -10}}
-                                        animate={{opacity: 1, x: 0}}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
                                         className="text-white/0 group-hover:text-white/100 transition-all duration-300"
                                     >
-                                        <ChevronRight className="w-6 h-6"/>
+                                        <ChevronRight className="w-6 h-6" />
                                     </motion.div>
                                 </div>
                             </div>
@@ -186,8 +201,6 @@ export default function ArticleSection() {
                                     {article.content}
                                 </p>
                                 <motion.div
-                                    // initial={{ opacity: 0 }}
-                                    // whileHover={{ opacity: 1 }}
                                     className="mt-4 text-[#B23737] font-medium"
                                 >
                                     Read more →
@@ -198,10 +211,10 @@ export default function ArticleSection() {
                 </motion.div>
             )}
 
-            {!isLoading && articles.length === 0 && (
+            {!isLoading && articles.length === 0 && pageNo === 1 && (
                 <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     className="text-center py-16"
                 >
                     <h3 className="text-2xl text-slate-950/80 mb-4">
@@ -216,10 +229,11 @@ export default function ArticleSection() {
                 </motion.div>
             )}
 
+
             <div className="flex justify-self-center mt-8 items-center">
                 <Button
                     onClick={handlePreviousPage}
-                    disabled={pageNo === 0}
+                    disabled={pageNo === 1}
                     className="bg-[#B23737] hover:bg-[#7F1F22]"
                 >
                     Previous
@@ -227,8 +241,8 @@ export default function ArticleSection() {
                 <input
                     type="number"
                     value={pageNo}
-                    onChange={handlePageInputChange}
-                    className="mx-4 p-2 border rounded"
+                    readOnly
+                    className="mx-4 w-12 border rounded-md p-2 text-center"
                     min="0"
                 />
                 <Button
@@ -240,6 +254,5 @@ export default function ArticleSection() {
                 </Button>
             </div>
         </motion.div>
-    )
-        ;
+    );
 }

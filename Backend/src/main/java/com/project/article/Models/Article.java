@@ -1,6 +1,7 @@
 package com.project.article.Models;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Entity
 public class Article extends BaseModel{
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Author author;

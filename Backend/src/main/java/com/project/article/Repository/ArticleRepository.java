@@ -28,4 +28,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("select a.id as id, a.author.name as authorName, a.title as title, a.content as content, a.createdAt as createdAt " +
             "from Article a where a.isDeleted = false")
     Page<ArticleProjection> findAllProjection(Pageable pageable);
+
+//    int countAllById();
 }
