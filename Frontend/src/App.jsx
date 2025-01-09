@@ -11,6 +11,7 @@ export default function App() {
                     <Route path="/" element={<ArticleSection />} />
                     <Route path="/create" element={<CreateArticle />} />
                     <Route path="/article/:id" element={<ViewArticle />} />
+
                 </Routes>
             </div>
         </Router>
